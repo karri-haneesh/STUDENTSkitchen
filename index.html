@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Student's Kitchen — Fresh. Fast. Affordable.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+  :root{
+    --brand:#ff6a00;
+    --brand-dark:#e05700;
+    --bg:#100a07;
+    --card:rgba(255,255,255,0.08);
+    --text:#fff;
+    --muted:#cfcfcf;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Poppins,system-ui,Segoe UI,Roboto,Arial;color:var(--text);background:radial-gradient(1200px 800px at 80% -10%, rgba(255,106,0,0.20), transparent 60%), #160d09;}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:20;
+    backdrop-filter: saturate(120%) blur(8px);
+    background:rgba(16,10,7,0.7);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .nav{
+    max-width:1100px; margin:auto; padding:12px 16px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px;
+  }
+  .brand img{height:40px;width:auto;border-radius:8px;box-shadow:0 0 12px rgba(255,106,0,.35)}
+  .navlinks{display:flex; gap:18px; font-weight:600; opacity:.95}
+  .cart-btn{
+    position:relative; display:flex; align-items:center; gap:8px;
+    background:var(--brand); border:none; color:#fff; padding:10px 14px; border-radius:999px; cursor:pointer; font-weight:700;
+    box-shadow:0 8px 24px rgba(255,106,0,.35);
+  }
+  .cart-count{
+    background:#111; color:#fff; font-size:12px; min-width:20px; height:20px; border-radius:10px; display:grid; place-items:center; padding:0 6px;
+  }
+
+  /* Hero */
+  .hero{
+    position:relative; overflow:hidden; border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .hero-inner{
+    max-width:1100px; margin:auto; padding:44px 16px 28px;
+    display:grid; grid-template-columns:1.2fr .8fr; gap:22px; align-items:center;
+  }
+  .hero h1{font-size:clamp(28px,5vw,44px); margin:6px 0 8px; line-height:1.12}
+  .hero p{color:var(--muted); margin:0 0 14px}
+  .tagline{color:#ffd8bf; font-weight:600}
+  .hero-art{
+    background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:10px;
+  }
+  .hero-art img{width:100%; height:auto; border-radius:12px}
+
+  /* Menu grid */
+  .wrap{max-width:1100px; margin:24px auto; padding:0 16px}
+  .section-title{display:flex; align-items:center; justify-content:space-between; margin:14px 0 8px}
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px;
+  }
+  .card{
+    background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:16px; overflow:hidden;
+    transition:.25s transform, .25s box-shadow;
+  }
+  .card:hover{transform:translateY(-4px); box-shadow:0 14px 36px rgba(0,0,0,.35)}
+  .card img{width:100%; height:160px; object-fit:cover}
+  .card-body{padding:12px}
+  .price{color:#ffd27f; font-weight:700; letter-spacing:.3px}
+  .add{margin-top:8px; width:100%; background:var(--brand); border:none; color:#fff; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:700}
+  .add:hover{background:var(--brand-dark)}
+
+  /* Cart drawer */
+  .drawer{position:fixed; inset:0; display:none;}
+  .drawer.show{display:block}
+  .drawer-backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
+  .drawer-panel{
+    position:absolute; top:0; right:0; width:min(420px, 92vw); height:100%;
+    background:#0f0a07; border-left:1px solid rgba(255,255,255,.08); padding:16px; overflow:auto;
+  }
+  .cart-row{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 0; border-bottom:1px dashed rgba(255,255,255,.08)}
+  .muted{color:var(--muted)}
+  .pill{background:rgba(255,255,255,.08); padding:6px 10px; border-radius:999px}
+  .qty{display:flex; align-items:center; gap:8px}
+  .qty button{width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:transparent; color:#fff; cursor:pointer}
+  .checkout{
+    position:sticky; bottom:0; background:linear-gradient(180deg, rgba(16,10,7,0), rgba(16,10,7,1) 35%); padding-top:12px; margin-top:12px;
+  }
+  .checkout .box{
+    background:#140c08; border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:12px;
+  }
+  .input{width:100%; padding:11px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.16); background:#0e0906; color:#fff}
+  .pay{margin-top:10px; width:100%; background:#19a34a; border:none; color:#fff; padding:12px; border-radius:10px; font-weight:800; cursor:pointer}
+  .pay:disabled{opacity:.6; cursor:not-allowed}
+
+  /* Footer */
+  footer{margin-top:30px; padding:24px 16px; background:rgba(0,0,0,.4); border-top:1px solid rgba(255,255,255,.06)}
+  .footgrid{max-width:1100px; margin:auto; display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media (max-width:860px){
+    .hero-inner{grid-template-columns:1fr}
+    .navlinks{display:none}
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <img src="https://image2url.com/images/1755249384627-d474ead1-23de-4f1c-9e5f-ab70833db80a.jpg" alt="Student's Kitchen logo">
+        <span>Student's Kitchen</span>
+      </div>
+      <nav class="navlinks">
+        <a href="#menu">Menu</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <button class="cart-btn" id="openCart">🛒 Cart <span class="cart-count" id="cartCount">0</span></button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="tagline">Fresh • Fast • Affordable</div>
+        <h1>Real food for real students.</h1>
+        <p>Powered by local kitchens. Delivered hot. Because hunger shouldn’t break the bank.</p>
+        <p class="muted">Auto location detection at checkout • UPI / Cards via Razorpay</p>
+      </div>
+      <div class="hero-art">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80" alt="Food hero">
+      </div>
+    </div>
+  </section>
+
+  <!-- Menu -->
+  <div class="wrap" id="menu">
+    <div class="section-title">
+      <h2>Today’s Specials</h2>
+      <span class="pill">Open Now</span>
+    </div>
+    <div class="grid">
+      <article class="card">
+        <img src="https://image2url.com/images/1755249415834-1cbd0472-bfd2-4085-9be4-281c6e078d0b.jpg" alt="Chicken Biryani">
+        <div class="card-body">
+          <h3>Chicken Biryani</h3>
+          <div class="muted">Aromatic basmati, tender chicken, secret spices.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+            <span class="price">₹180</span>
+            <button class="add" onclick="addToCart('Chicken Biryani', 180)">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <img src="https://image2url.com/images/1755249438471-414138f3-1131-4244-856d-fe2ca6e29292.jpg" alt="Chicken Fried Rice">
+        <div class="card-body">
+          <h3>Chicken Fried Rice</h3>
+          <div class="muted">Smoky wok-tossed rice with juicy chicken & veg.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+            <span class="price">₹150</span>
+            <button class="add" onclick="addToCart('Chicken Fried Rice', 150)">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- About + Contact -->
+  <footer>
+    <div class="footgrid" id="about">
+      <div>
+        <h3>About Student's Kitchen</h3>
+        <p class="muted">We cook daily in small batches for students around your campus. Clear pricing, quick service, and reliable delivery. Orders & payments are securely handled by Razorpay.</p>
+      </div>
+      <div id="contact">
+        <h3>Contact</h3>
+        <p class="muted">Email: support@studentskitchen.in<br>Phone: +91-93924 82096<br>Hours: 11:00–23:00 IST</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Drawer -->
+  <aside class="drawer" id="cartDrawer" aria-hidden="true">
+    <div class="drawer-backdrop" onclick="toggleCart(false)"></div>
+    <div class="drawer-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <h3>Your Cart</h3>
+        <button class="qty" onclick="toggleCart(false)" aria-label="Close cart">
+          <span class="pill">✕</span>
+        </button>
+      </div>
+
+      <div id="cartItems" style="margin-top:10px"></div>
+
+      <div class="checkout">
+        <div class="box">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="muted">Subtotal</span>
+            <strong>₹ <span id="subtotal">0</span></strong>
+          </div>
+
+          <div style="margin-top:10px">
+            <label class="muted" for="phone">Phone Number</label>
+            <input class="input" id="phone" type="tel" placeholder="e.g. 98765 43210" maxlength="15">
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px">
+            <div style="flex:1">
+              <div class="muted" style="margin-bottom:6px">Location</div>
+              <div id="locText" class="pill" style="display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Detecting…</div>
+            </div>
+            <button class="qty" title="Retry location" onclick="detectLocation(true)">⟳</button>
+          </div>
+
+          <button class="pay" id="payBtn" onclick="payNow()" disabled>Pay Securely with Razorpay</button>
+          <div class="muted" style="font-size:12px; margin-top:8px">By paying, you agree to our Terms & Refund Policy.</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+<script>
+  // ---- State ----
+  const cart = [];
+  let geo = { lat: null, lon: null, text: "" };
+
+  // ---- DOM helpers ----
+  const el = id => document.getElementById(id);
+  const fmt = n => Number(n).toFixed(0);
+
+  // ---- Cart logic ----
+  function addToCart(name, price){
+    const existing = cart.find(i => i.name === name);
+    if(existing){ existing.qty += 1; }
+    else { cart.push({name, price, qty:1}); }
+    renderCartBadge();
+    // quick micro feedback
+    toggleCart(true);
+    renderCart();
+  }
+
+  function changeQty(name, delta){
+    const it = cart.find(i => i.name === name);
+    if(!it) return;
+    it.qty += delta;
+    if(it.qty <= 0){
+      const idx = cart.indexOf(it);
+      cart.splice(idx,1);
+    }
+    renderCart();
+    renderCartBadge();
+  }
+
+  function cartTotal(){
+    return cart.reduce((s,i)=> s + i.price * i.qty, 0);
+  }
+
+  function renderCartBadge(){
+    el('cartCount').textContent = cart.reduce((s,i)=> s + i.qty, 0);
+  }
+
+  function renderCart(){
+    const cont = el('cartItems');
+    cont.innerHTML = "";
+    if(cart.length===0){
+      cont.innerHTML = `<p class="muted">Your cart is empty. Add some tasty items!</p>`;
+      el('subtotal').textContent = "0";
+      el('payBtn').disabled = true;
+      return;
+    }
+    cart.forEach(i=>{
+      const row = document.createElement('div');
+      row.className = 'cart-row';
+      row.innerHTML = `
+        <div>
+          <div><strong>${i.name}</strong></div>
+          <div class="muted">₹ ${fmt(i.price)} × ${i.qty}</div>
+        </div>
+        <div class="qty">
+          <button onclick="changeQty('${i.name.replace(/'/g,"\\'")}', -1)">−</button>
+          <span>${i.qty}</span>
+          <button onclick="changeQty('${i.name.replace(/'/g,"\\'")}', 1)">+</button>
+        </div>
+        <div><strong>₹ ${fmt(i.price*i.qty)}</strong></div>
+      `;
+      cont.appendChild(row);
+    });
+    el('subtotal').textContent = fmt(cartTotal());
+    enablePayIfReady();
+  }
+
+  // ---- Drawer ----
+  function toggleCart(show){
+    const d = el('cartDrawer');
+    if(show){ d.classList.add('show'); d.setAttribute('aria-hidden','false'); }
+    else { d.classList.remove('show'); d.setAttribute('aria-hidden','true'); }
+    renderCart();
+  }
+  el('openCart').addEventListener('click', ()=> toggleCart(true));
+
+  // ---- Location ----
+  function detectLocation(force=false){
+    const locEl = el('locText');
+    if(!force && geo.lat && geo.lon){ enablePayIfReady(); return; }
+    locEl.textContent = "Detecting…";
+    if(!navigator.geolocation){
+      locEl.textContent = "Geolocation not supported.";
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        geo.lat = pos.coords.latitude;
+        geo.lon = pos.coords.longitude;
+        geo.text = `Lat ${geo.lat.toFixed(4)}, Lon ${geo.lon.toFixed(4)}`;
+        locEl.textContent = geo.text;
+        enablePayIfReady();
+      },
+      err=>{
+        locEl.textContent = "Location blocked. Allow permission or retry ⟳";
+        enablePayIfReady();
+      },
+      { enableHighAccuracy:true, timeout:10000, maximumAge:60000 }
+    );
+  }
+  // auto attempt once on load
+  detectLocation(false);
+
+  // ---- Validation ----
+  function phoneValid(p){
+    // simple India-first check; you can improve this later
+    return /^[0-9]{6,15}$/.test((p||"").replace(/\s/g,''));
+  }
+  function enablePayIfReady(){
+    const ok =
+      cart.length>0 &&
+      phoneValid(el('phone').value) &&
+      (geo.lat!==null && geo.lon!==null);
+    el('payBtn').disabled = !ok;
+  }
+  el('phone').addEventListener('input', enablePayIfReady);
+
+  // ---- Razorpay ----
+  function payNow(){
+    const total = cartTotal();
+    if(total<=0){ alert("Cart is empty"); return; }
+    const phone = el('phone').value.trim();
+    if(!phoneValid(phone)){ alert("Enter a valid phone number"); return; }
+    if(geo.lat===null){ alert("Please allow location access (click ⟳)"); return; }
+
+    // NOTE:
+    // For Live/Production you should create an Order on your server and pass order_id here.
+    // For Razorpay review & quick testing, this client-side amount flow is fine.
+    const options = {
+      key: "YOUR_RAZORPAY_KEY_ID", // TODO: replace with your Test Key ID, then Live Key after approval
+      amount: total * 100, // paise
+      currency: "INR",
+      name: "Student's Kitchen",
+      description: "Food Order",
+      image: "https://image2url.com/images/1755249384627-d474ead1-23de-4f1c-9e5f-ab70833db80a.jpg",
+      handler: function (response) {
+        // success callback
+        alert("Payment successful! ID: " + response.razorpay_payment_id);
+        // reset cart
+        cart.splice(0, cart.length);
+        renderCart();
+        renderCartBadge();
+        toggleCart(false);
+      },
+      prefill: {
+        name: "Customer",
+        contact: phone
+      },
+      notes: {
+        location: geo.text || "",
+        lat: geo.lat || "",
+        lon: geo.lon || "",
+        items: cart.map(i=>`${i.name} x${i.qty}`).join(", "),
+        subtotal: String(total)
+      },
+      theme: { color: "#ff6a00" }
+    };
+    const rzp = new Razorpay(options);
+    rzp.open();
+  }
+
+  // Enable pay button state on open
+  document.addEventListener('visibilitychange', enablePayIfReady);
+</script>
+</body>
+</html>
